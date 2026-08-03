@@ -536,7 +536,50 @@ function vSettings(){
     </div></div>
     <div class="card" style="background:var(--cream2);border:none;font-size:13.5px">
       Delivery fees are managed in <strong>Delivery areas</strong>.
+    </div>
+
+    <div class="card">
+      <h2 style="font-family:'Instrument Serif',Georgia,serif;font-weight:500;font-size:19px;margin-bottom:6px">Change password</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">
+        Only you can see this dashboard. If you were given a starting password, change it here.
+      </p>
+      <div class="grid1">
+        <div class="fld"><label>New password</label>
+          <input type="password" id="pw-new" placeholder="At least 8 characters" autocomplete="new-password"></div>
+        <div class="fld"><label>Repeat new password</label>
+          <input type="password" id="pw-again" autocomplete="new-password"></div>
+        <div>
+          <button class="btn sage" id="pw-save" onclick="changePassword()">Update password</button>
+          <span id="pw-msg" style="display:none;font-size:13px;margin-left:10px"></span>
+        </div>
+      </div>
     </div>`;
+}
+
+async function changePassword(){
+  const pw=document.getElementById("pw-new").value;
+  const again=document.getElementById("pw-again").value;
+  const msg=document.getElementById("pw-msg");
+  const btn=document.getElementById("pw-save");
+
+  const fail=(t)=>{ msg.textContent=t; msg.style.color="var(--bad)"; msg.style.display="inline"; };
+
+  msg.style.display="none";
+  if(!pw || !again) return fail("Please fill in both boxes.");
+  if(pw.length < 8) return fail("Please use at least 8 characters.");
+  if(pw !== again) return fail("The two passwords don't match.");
+
+  btn.disabled=true; btn.textContent="Updating…";
+  const { error } = await sb.auth.updateUser({ password: pw });
+  btn.disabled=false; btn.textContent="Update password";
+
+  if(error){ console.error(error); return fail("Could not update password. Please try again."); }
+
+  document.getElementById("pw-new").value="";
+  document.getElementById("pw-again").value="";
+  msg.textContent="Password updated — use it next time you sign in.";
+  msg.style.color="var(--ok)";
+  msg.style.display="inline";
 }
 async function svSettings(){
   const msg=document.getElementById("s-msg");
